@@ -2,27 +2,28 @@ import numpy as np
 import math
 import copy
 def WKNKN(DTI,drugSimilarity,proteinSimilarity,K,r):
-    drugCount=DTI.shape[0]
-    proteinCount=DTI.shape[1]
+    drugCount=DTI.shape[0]  //药物个数
+    proteinCount=DTI.shape[1]  //靶点个数
     # 标志drug是new drug还是known drug 如果是known drug,则相应位为1
     # 如果是new drug,则相应位为0
-    flagDrug=np.zeros([drugCount])
-    flagProtein=np.zeros([proteinCount])
+    flagDrug=np.zeros([drugCount])  //长度为drugCount的 0 列表
+    flagProtein=np.zeros([proteinCount])  //长度为proteinCount的 0 列表
+    //  找出已知关系的节点坐标，即已知节点
     for i in range(drugCount):
         for j in range(proteinCount):
             if(DTI[i][j]==1):
                 flagDrug[i]=1
                 flagProtein[j]=1
-    Yd=np.zeros([drugCount,proteinCount])
-    Yt=np.zeros([drugCount,proteinCount])
+    Yd=np.zeros([drugCount,proteinCount])  // 大小与DTI一样的空矩阵
+    Yt=np.zeros([drugCount,proteinCount])  // 大小与DTI一样的空矩阵
     # Yd矩阵的获取
-    for d in range(drugCount):
-        dnn=KNearestKnownNeighbors(d,drugSimilarity,K,flagDrug)#返回K近邻
-        w=np.zeros([K])
+    for d in range(drugCount):  //  drugCount=DTI.shape[0] 
+        dnn=KNearestKnownNeighbors(d,drugSimilarity,K,flagDrug)   // 返回K近邻, K=10，长为10的列表[……]
+        w=np.zeros([K])  // 长为10的空列表  [0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
         Zd=0
         # 获取权重w和归一化因子Zd
         for i in range(K):
-            w[i]=math.pow(r,i)*drugSimilarity[d,dnn[i]]
+            w[i]=math.pow(r,i)*drugSimilarity[d,dnn[i]] //[1.0, 0.8, 0.6400000000000001, 0.5120000000000001, 0.4096000000000001, 0.3276800000000001, 0.2621440000000001, 0.20971520000000007, 0.1677721600000001, 0.13421772800000006]
             Zd+=drugSimilarity[d,dnn[i]]
         for i in range(K):
             Yd[d]=Yd[d]+w[i]*DTI[dnn[i]]
@@ -53,7 +54,7 @@ def KNearestKnownNeighbors(node,matrix,K,flagNodeArray):
     featureSimilarity[flagNodeArray==0]=-100  #排除new drug/new target,使其相似度为-100
     # 只考虑known node
     KknownNeighbors=featureSimilarity.argsort()[::-1]#按照相似度降序排序
-    KknownNeighbors=KknownNeighbors[:K]#返回前K个结点的下标
+    KknownNeighbors=KknownNeighbors[:K]#返回前K个结点的下标，是个列表
     return KknownNeighbors
 if __name__ == "__main__":
     # DTI=np.array([[1,1,0],[1,0,0],[0,0,1],[0,0,0]],dtype=float)
@@ -79,11 +80,11 @@ if __name__ == "__main__":
         for j in range(predict_Y.shape[1]):
             if predict_Y[i][j]!=0:
                 num_float+=1
-    frequent_no_zero=num_float/(predict_Y.shape[0]*predict_Y.shape[1])
+    frequent_no_zero=num_float/(predict_Y.shape[0]*predict_Y.shape[1])  // 变大
     print("After WKNKN,none zero ratio:%.4f"%frequent_no_zero)
     # 离散化WKNKN
 
-
+// 用来鉴别99~100行有没有效果的，操作前计算一个指标，然后操作后在计算一个指标，比较就可以知道操作是否有效
     num_greaterzero_samllerone=0
     for i in range(predict_Y.shape[0]):
         for j in range(predict_Y.shape[1]):
