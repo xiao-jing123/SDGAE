@@ -94,7 +94,7 @@ if __name__ == "__main__":
     print('Before discretize: num of float num %d'%num_greaterzero_samllerone)
 
     float_array=copy.deepcopy(predict_Y[ (predict_Y>0) & (predict_Y<1) ])
-    float_median=np.median(float_array)
+    float_median=np.median(float_array)  //  np.median() 是 NumPy 库中的一个函数，用于计算数组的中位数。
 
     predict_Y[predict_Y>=float_median]=1
     predict_Y[predict_Y<float_median]=0
